@@ -36,3 +36,87 @@
     transform: rotate(360deg);
   }
 }
+
+/* Disable text selection on Directory-Item */
+.Directory-Item, .Directory-Path-Text{
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
+
+.Directory-Path-Text{
+  background:red;
+  color:white;
+  width:100%;
+  padding:5px;
+  box-sizing: border-box;
+}
+
+.Directory-Display-Type-Toggle{
+  position:absolute;
+  top:0px;
+  right:0px;
+  cursor:pointer;
+  border-left:1px solid black;
+  border-bottom:1px solid black;
+  width:20px;
+  padding:5px;
+  color:white;
+  background:black;
+  border-bottom-left-radius: 5px;
+}
+
+.Directory-Tree{
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  justify-content:center;
+  display:relative;
+}
+
+.Directory-Item{
+  width:100%;
+  text-align:left;
+  box-sizing: border-box;
+  padding:15px;
+  border:0;
+  position:relative;
+  border-bottom: 1px solid grey;
+  height:auto;
+}
+
+.Directory-Item:first-of-type{
+  border-top: 1px solid grey;
+}
+
+.Directory-Item-Grid{
+  border:1px solid black;
+  border-radius: 15px;
+  min-width:100px;
+  width:auto;
+  height:100px;
+  display:inline-block;
+  margin:15px;
+  cursor:pointer;
+  padding:15px;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+}
+
+.Directory-Item-Grid.Directory-Item-Active{
+  border: 5px solid black;
+}
+
+.Directory-Item.Directory-Item-Active{
+  background:pink !important;
+}
+
+.Directory-Item img{
+  max-width:5vh;
+  height:auto;
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+}

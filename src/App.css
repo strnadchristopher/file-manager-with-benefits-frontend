@@ -43,10 +43,19 @@ html, body, .App, #app>div {
 
 .Toolbar{
   width:100%;
-  height:4vh;
+  height:3vh;
   display:flex;
   justify-content: center;
   align-items: center;
+  position:fixed;
+  background:white;
+  z-index:5;
+  top:0;
+  border-bottom:2px solid grey;
+}
+
+.Directory-Tree, .Directory-Tree-Grid{
+  margin-top:4vh;
 }
 
 /* Disable text selection on Directory-Item */
@@ -89,16 +98,23 @@ html, body, .App, #app>div {
 
 .Directory-Display-Type-Toggle{
   position:absolute;
-  top:0px;
-  right:0px;
+  top:50%;
+  right:15px;
+  transform:translateY(-50%);
+  border-radius:5px;
   cursor:pointer;
-  border-left:1px solid black;
-  border-bottom:1px solid black;
   width:20px;
-  padding:5px;
-  color:white;
+  padding:6px;
+  color:black;
+  background:white;
+  border:1px solid black;
+  transition:background 0.2s ease-in-out, color 0.2s ease-in-out, border-radius 0.2s ease-in-out;
+}
+
+.Directory-Display-Type-Toggle.Grid-Mode-Enabled{
   background:black;
-  border-bottom-left-radius: 5px;
+  color:white;
+  border-radius: 10px;
 }
 
 .Directory-Tree{
@@ -141,10 +157,6 @@ html, body, .App, #app>div {
   color:white;
   width:auto;
   padding:15px;
-}
-
-.Directory-Item:first-of-type{
-  border-top: 1px solid grey;
 }
 
 .Directory-Item-Grid{

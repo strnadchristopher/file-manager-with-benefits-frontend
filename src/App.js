@@ -4,8 +4,9 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 
 function App() {
+  const abortController = new AbortController();
   const [directoryItems, setDirectoryItems] = useState(['../']);
-
+  const [previousDirectoryPath, setPreviousDirectoryPath] = useState('/home/christopher/Pictures/wallpapers');
   const [directoryPath, setDirectoryPath] = useState('/home/christopher/Pictures/wallpapers');
   const [activeDirectoryItem, setActiveDirectoryItem] = useState(-1);
   const [gridMode, setGridMode] = useState(true);
@@ -20,7 +21,7 @@ function App() {
     })
       .then(response => response.json())
       .then(data => {
-        // console.log(data);
+        setPreviousDirectoryPath(directoryPath);
         setDirectoryPath(data.location);
         setDirectoryItems([{type: 'Directory', location: "../", thumbnail: false}, ...data.contents]);
       });
@@ -42,6 +43,19 @@ function App() {
 
   useEffect(() =>{
     loadDirectory(directoryPath);
+    const handleBackButton = () => {
+      console.log('Back button clicked!');
+      // Your custom logic here
+    };
+
+    // Add event listener for the popstate event
+    window.addEventListener('mouseup', (event)=>{
+      if(event.button === 3){
+        console.log("Navigating backwards")
+        setDirectoryPath(previousDirectoryPath);
+      }
+    });
+
   }, [directoryPath])
 
 
@@ -83,7 +97,7 @@ function App() {
           </span>)
         })}
         </span>
-        <div onClick={()=>{setGridMode(!gridMode)}} className="Directory-Display-Type-Toggle">
+        <div onClick={()=>{setGridMode(!gridMode)}} className={(!gridMode ? "Directory-Display-Type-Toggle" : "Directory-Display-Type-Toggle Grid-Mode-Enabled")}>
           {
             gridMode ? <i class="fa-solid fa-bars"></i> : <i class="fa-solid fa-list"></i>
           }

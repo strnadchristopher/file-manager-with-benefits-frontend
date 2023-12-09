@@ -157,6 +157,10 @@ html, body, .App, #app>div {
   color:white;
   width:auto;
   padding:15px;
+  font-size: 1.5em;
+  position:absolute;
+  left: 5%;
+  top: 5%;
 }
 
 .Directory-Item-Grid{

@@ -4,25 +4,26 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 
 function App() {
-  const abortController = new AbortController();
   const [directoryItems, setDirectoryItems] = useState(['../']);
   const [previousDirectoryPath, setPreviousDirectoryPath] = useState('/home/christopher/Pictures/wallpapers');
   const [directoryPath, setDirectoryPath] = useState('/home/christopher/Pictures/wallpapers');
   const [activeDirectoryItem, setActiveDirectoryItem] = useState(-1);
-  const [gridMode, setGridMode] = useState(true);
-  const loadDirectory = (directoryPath) =>{
-    console.log("Attempting to load directory: " + directoryPath);
+  const [gridMode, setGridMode] = useState(false);
+  const [directoryHistory, setDirectoryHistory] = useState([directoryPath]);
+  const [directoryHistoryCurrentIndex, setDirectoryHistoryCurrentIndex] = useState(0);
+
+  const loadDirectory = (newDirectory) =>{
+    console.log("Attempting to load directory: " + newDirectory);
     fetch('http://localhost:8000/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: directoryPath
+      body: newDirectory
     })
       .then(response => response.json())
       .then(data => {
-        setPreviousDirectoryPath(directoryPath);
-        setDirectoryPath(data.location);
+        setDirectoryPath(newDirectory);
         setDirectoryItems([{type: 'Directory', location: "../", thumbnail: false}, ...data.contents]);
       });
   }
@@ -41,23 +42,44 @@ function App() {
       });
   }
 
+  // If mouse back button is clicked, go back in directory history
+  useEffect(() =>{
+    const handleBackButton = (e) =>{
+      if(e.button === 3){
+        console.log("Back button pressed");
+        console.log("Directory history length: " + directoryHistory.length);
+        console.log("Directory history current index: " + directoryHistoryCurrentIndex);
+        if(directoryHistoryCurrentIndex > 0){
+          setDirectoryHistoryCurrentIndex(directoryHistoryCurrentIndex-1);
+        }
+      }
+    }
+    window.addEventListener('mouseup', handleBackButton);
+    return () => window.removeEventListener('mouseup', handleBackButton);
+  }, [directoryHistory])
+
+  useEffect(() =>{
+    if(directoryHistoryCurrentIndex < 0){
+      setDirectoryHistoryCurrentIndex(0);
+    }
+    if(directoryHistoryCurrentIndex >= directoryHistory.length){
+      setDirectoryHistoryCurrentIndex(directoryHistory.length-1);
+    }
+    if(directoryHistoryCurrentIndex < directoryHistory.length){
+      loadDirectory(directoryHistory[directoryHistoryCurrentIndex]);
+    }
+  }, [directoryHistoryCurrentIndex])
+
+  useEffect(() =>{
+    console.log("Directory history is now: " + directoryHistory);
+    console.log("Directory history current index is now: " + directoryHistoryCurrentIndex);
+    setDirectoryHistoryCurrentIndex(directoryHistory.length-1);
+
+  }, [directoryHistory])
+
   useEffect(() =>{
     loadDirectory(directoryPath);
-    const handleBackButton = () => {
-      console.log('Back button clicked!');
-      // Your custom logic here
-    };
-
-    // Add event listener for the popstate event
-    window.addEventListener('mouseup', (event)=>{
-      if(event.button === 3){
-        console.log("Navigating backwards")
-        setDirectoryPath(previousDirectoryPath);
-      }
-    });
-
-  }, [directoryPath])
-
+  }, [])
 
   const directoryItemClickHandler = (index) =>{
     console.log(index);
@@ -65,14 +87,17 @@ function App() {
   }
 
   const directoryItemDoubleClickHandler = (name, fileType) => {
+    setDirectoryHistory([...directoryHistory, directoryPath]);
     switch (fileType){
       case 'Directory':
         console.log(directoryPath + "/" + name)
         if(name === '../'){
-          setDirectoryPath(directoryPath.substring(0, directoryPath.lastIndexOf('/')));
+          setDirectoryHistory([...directoryHistory, directoryPath.substring(0, directoryPath.lastIndexOf('/'))]);
+          loadDirectory(directoryPath.substring(0, directoryPath.lastIndexOf('/')));
           return;
         }
-        setDirectoryPath(name);
+        setDirectoryHistory([...directoryHistory, name]);
+        loadDirectory(name);
         break;
       case 'File':
         requestFileLaunch(name);
@@ -90,9 +115,13 @@ function App() {
           <span>
             {index !== 0 && <i class="fa-solid fa-chevron-right"></i>}
             <span className="Directory-Path-Text" onClick={()=>{
-              loadDirectory(
-              directoryPath.split("/").slice(0, index+2).join("/")
-            )}}>{item}
+              if(directoryPath.split("/").slice(0, index+2).join("/") !== directoryPath){
+                setDirectoryHistory(prev => [...prev, directoryPath.split("/").slice(0, index+2).join("/")]);
+                loadDirectory(
+                  directoryPath.split("/").slice(0, index+2).join("/")
+                );
+              }
+              }}>{item}
             </span>
           </span>)
         })}
@@ -123,7 +152,6 @@ function App() {
 
 function DirectoryItem(props){
   const getFileNameFromPath = (path) =>{
-    console.log(path)
     if(path === '../'){
       return path;
     }
